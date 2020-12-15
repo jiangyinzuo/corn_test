@@ -1,5 +1,8 @@
 // Copyright (c) 2020, Jiang Yinzuo. All rights reserved.
 
+// The latest version of this head file is available on
+// https://github.com/ChiangYintso/corn_test
+
 #ifndef CORN_TEST_H
 #define CORN_TEST_H
 
