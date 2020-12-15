@@ -1,0 +1,7 @@
+#include "corn_test.h"
+
+TEST(foo){ ASSERT(1 < 2) }
+
+TEST(bar){ ASSERT_EQ(1, 2 - 1) }
+
+TEST_MAIN()
