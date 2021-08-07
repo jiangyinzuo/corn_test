@@ -1,6 +1,9 @@
 #include "corn_test.h"
 
-TEST(foo){ ASSERT(1 < 2) }
+TEST(foo)
+{
+	ASSERT(4 == 3, "err!");
+}
 
 TEST(bar)
 {

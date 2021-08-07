@@ -6,10 +6,13 @@
 #ifndef CORN_TEST_H
 #define CORN_TEST_H
 
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stddef.h>
+
+#define NUMARGS(...) (sizeof((int[]){ 0, ##__VA_ARGS__ }) / sizeof(int) - 1)
 
 #define FMT(val)                                   \
 	_Generic((val), signed char                \
@@ -91,27 +94,38 @@ static void test_case_list_free()
 	}                                                             \
 	static void test_##name()
 
-#define PRINT_FAILURE                                                       \
-	printf("%sFailure in %s, %d:\n%s", colors[RED], __FILE__, __LINE__, \
-	       colors[RESET]);
+#define PRINT_FAILURE                                                      \
+	fprintf(stderr, "%sFailure in %s, %d:\n%s", colors[RED], __FILE__, \
+		__LINE__, colors[RESET]);
 
-#define ASSERT(x)                                      \
-	if (!(x)) {                                    \
-		PRINT_FAILURE;                         \
-		printf("Expected: true\n");            \
-		printf("Actual: `%s` is false\n", #x); \
-		++num_test_failed;                     \
+#define ASSERT(x, ...)                                             \
+	if (!(x)) {                                                \
+		PRINT_FAILURE;                                     \
+		fprintf(stderr, "Expected: true\n");               \
+		fprintf(stderr, "Actual: `%s` is false\n", #x);    \
+		corn_printfn(NUMARGS(__VA_ARGS__), ##__VA_ARGS__); \
+		++num_test_failed;                                 \
 	}
 
-#define ASSERT_EQ(x, y)               \
-	if (x != y) {                 \
-		PRINT_FAILURE;        \
-		printf("Expected: "); \
-		printf(FMT(x), x);    \
-		printf("\nActual: "); \
-		printf(FMT(y), y);    \
-		putchar('\n');        \
-		++num_test_failed;    \
+static void corn_printfn(int numargs, ...)
+{
+	if (numargs > 0) {
+		va_list args;
+		va_start(args, numargs);
+		const char *fmt = va_arg(args, const char *);
+		vfprintf(stderr, fmt, args);
+	}
+}
+
+#define ASSERT_EQ(x, y)                        \
+	if (x != y) {                          \
+		PRINT_FAILURE;                 \
+		fprintf(stderr, "Expected: "); \
+		fprintf(stderr, FMT(x), x);    \
+		fprintf(stderr, "\nActual: "); \
+		fprintf(stderr, FMT(y), y);    \
+		putchar('\n');                 \
+		++num_test_failed;             \
 	}
 
 static int corn_test_main(int argc, char *argv[])
